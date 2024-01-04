@@ -10,7 +10,6 @@ import SwiftUI
 struct HomeView: View {
     
     @State private var messageString = "Bathroom Finder"
-    @EnvironmentObject var locationManager: LocationManager
     
     var body: some View {
         
@@ -32,10 +31,10 @@ struct HomeView: View {
                             .fontWeight(.black)
                             .minimumScaleFactor(0.5)
                             .padding()
-                            .italic()
+//                            .italic()
                             .underline()
                             .multilineTextAlignment(.center)
-                            .background(.green)
+//                            .background(.green)
                             .cornerRadius(10)
                             .frame(maxWidth: .infinity, alignment: .top)
                             .padding(.bottom, 40)
@@ -72,8 +71,7 @@ struct HomeView: View {
                             }
                         }
                         
-                        
-                        
+
                         VStack {
                             Divider()
                                 .background(.black)
