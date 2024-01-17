@@ -25,7 +25,7 @@ struct bathroomFinderApp: App {
     var body: some Scene {
         WindowGroup {
             HomeView()
-           //     .environmentObject(locationManager)
+               // .environmentObject(locationManager)
             
             
         }

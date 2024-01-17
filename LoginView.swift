@@ -19,10 +19,11 @@ struct LoginView: View {
     @State private var showingAlert = false
     @State private var alertMessage = ""
     @State private var buttonsDisabled = true
+    @State private var path = NavigationPath()
     @FocusState private var focusField: Field?
     
     var body: some View {
-        NavigationStack {
+        NavigationStack (path: $path) {
             Image("toiletEmoji")
                 .resizable()
                 .scaledToFit()
@@ -79,10 +80,21 @@ struct LoginView: View {
             .font(.title2)
             .padding(.top)
             .navigationBarTitleDisplayMode(.inline)
-            
+            .navigationDestination(for: String.self) { view in
+                if view == "ListView" {
+                    ListView()
+                }
+            }
         }
         .alert(alertMessage, isPresented: $showingAlert) {
             Button("OK", role: .cancel) {}
+        }
+        .onAppear {
+            //if klogged in when app runs, navigate to the new screen and skip login screen
+            if Auth.auth().currentUser != nil {
+                print("login successful")
+                path.append("ListView")
+            }
         }
         
     }
@@ -101,7 +113,7 @@ struct LoginView: View {
                 showingAlert = true
             }
             print("registration success!")
-            //TODO: load home view
+            path.append("ListView")
         }
     }
     
@@ -113,7 +125,7 @@ struct LoginView: View {
                 showingAlert = true
             }
             print("login successful")
-            //TODO: load home view
+            path.append("ListView")
         }
     }
 }
