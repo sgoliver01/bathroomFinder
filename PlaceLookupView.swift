@@ -38,7 +38,7 @@ struct PlaceLookupView: View {
                 //
                 //            })
                 //
-            
+                
                 .onChange(of: searchText, perform: { text in
                     if !text.isEmpty {
                         placeVM.search(text: text, region: locationManager.region)

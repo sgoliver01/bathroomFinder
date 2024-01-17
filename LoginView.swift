@@ -39,9 +39,10 @@ struct LoginView: View {
                     .onSubmit {
                         focusField = .password
                     } //moves you to password
-                    .onChange(of: email, perform: { _ in
+                    .onChange(of: email, {
                         enableButtons()
                     })
+                  
                 SecureField("Password", text: $password)
                     .textInputAutocapitalization(.never)
                     .submitLabel(.done)
@@ -49,9 +50,10 @@ struct LoginView: View {
                     .onSubmit {
                         focusField = nil //will dismiss the keyboard
                     }
-                    .onChange(of: password, perform: { _ in
+                    .onChange(of: password, {
                         enableButtons()
                     })
+                   
             }
             .textFieldStyle(.roundedBorder)
             .overlay {
@@ -135,3 +137,4 @@ struct LoginView_Previews: PreviewProvider {
         LoginView()
     }
 }
+

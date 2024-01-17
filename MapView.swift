@@ -15,11 +15,9 @@ struct MapView: View {
     @State var returnedPlace = Place(mapItem: MKMapItem())
     
 
-    
     var body: some View {
         
 
-        
         GeometryReader {geometry in
             
             NavigationStack {
@@ -34,19 +32,21 @@ struct MapView: View {
                     VStack {
                         Text("location \( locationManager.location?.coordinate.latitude ?? 0.0), \(   locationManager.location?.coordinate.longitude ?? 0.0)")
                         
-                        
-                        Button("Use Current Location \n") {
-                            //get coordinates
-//                            currentLat = locationManager.location?.coordinate.latitude ?? 0.00
-//                            
-//                            currentLong = (locationManager.location?.coordinate.longitude) ?? 0.00
-                            
-                          
-
-                            
-//                            Text("finding bathrooms near \(locationManager.location?.coordinate.longitude) and \(locationManager.location?.coordinate.latitude)")
-                            //search nearby locations
+                        Button("Use Current Location") {
+                            showPlaceLookupSheet.toggle()
                         }
+//                        Button("Use Current Location \n") {
+//                            //get coordinates
+////                            currentLat = locationManager.location?.coordinate.latitude ?? 0.00
+////                            
+////                            currentLong = (locationManager.location?.coordinate.longitude) ?? 0.00
+//                            
+//                          
+//
+//                            
+////                            Text("finding bathrooms near \(locationManager.location?.coordinate.longitude) and \(locationManager.location?.coordinate.latitude)")
+//                            //search nearby locations
+//                        }
                         Text("Or")
                         
                         HStack {

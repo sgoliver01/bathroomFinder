@@ -5,11 +5,14 @@
 //  Created by Ben Oliver on 12/22/23.
 //
 
+import Foundation
 import SwiftUI
+import Firebase
 
 struct HomeView: View {
-    
+    @Environment(\.dismiss) private var dismiss
     @State private var messageString = "Bathroom Finder"
+    
     
     var body: some View {
         
@@ -78,31 +81,36 @@ struct HomeView: View {
                                 .padding(.top, 50.0)
                                 .frame(width: geometry.size.width, alignment: .bottom)
                             
-                            NavigationLink {
-                                RateView()
-                            } label: {
-                                Text("Rate a Bathroom")
-                            }
-                            .buttonStyle(.borderedProminent)
-                            .frame(width: 200, height: 50, alignment: .bottom)
-                            
+//                            NavigationLink {
+//                                ReviewView(bathroom: Bathroom, review: Review)
+//                            } label: {
+//                                Text("Rate a Bathroom")
+//                            }
+//                            .buttonStyle(.borderedProminent)
+//                            .frame(width: 200, height: 50, alignment: .bottom)
+//                            
                             
                         }
                         
                         
                     }
-                    
                 }
+   
             }
         }
+        
         
         
     }
 }
 
-#Preview {
-    HomeView() //the location doesnt show in live preview - use simulator
-        .environmentObject(LocationManager())
+struct HomeView_Previews: PreviewProvider {
+    static var previews: some View {
+        NavigationStack {
+            HomeView() //the location doesnt show in live preview - use simulator
+                .environmentObject(LocationManager())
+        }
+    }
 }
 //                                    Button("Find a Bathroom")
 ////                                        //action performed when button is pressed
