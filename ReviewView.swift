@@ -10,6 +10,9 @@ import SwiftUI
 struct ReviewView: View {
     @State var bathroom: Bathroom
     @State var review: Review
+    @StateObject var reviewVM = ReviewViewModel()
+    
+    @State private var showPlaceLookupSheet = false
     @Environment(\.dismiss) private var dismiss
     
     
@@ -24,15 +27,15 @@ struct ReviewView: View {
                     .opacity(0.5)
                     .ignoresSafeArea()
                 
-  
+                
                 VStack {
-
+                    
                     VStack (alignment: .leading) {
                         Text(bathroom.name)
                             .font(.title)
                             .bold()
                             .multilineTextAlignment(.leading)
-                        .lineLimit(1)
+                            .lineLimit(1)
                         
                         Text(bathroom.address)
                             .padding(.bottom)
@@ -44,11 +47,11 @@ struct ReviewView: View {
                         .font(.title2)
                         .bold()
                     HStack {
-                        PoopsSelectionView(rating: review.rating)
-//                            .overlay {
-//                                RoundedRectangle(cornerRadius: 5)
-//                                    .stroke(.gray.opacity(0.5), lineWidth: 2)
-//                        }
+                        PoopsSelectionView(rating: $review.rating)
+                        //                            .overlay {
+                        //                                RoundedRectangle(cornerRadius: 5)
+                        //                                    .stroke(.gray.opacity(0.5), lineWidth: 2)
+                        //                        }
                     }
                     .padding([.leading, .bottom, .trailing], 10.0)
                     
@@ -130,18 +133,41 @@ struct ReviewView: View {
                     Spacer()
                 }
                 .toolbar(content: {
-                    ToolbarItem(placement: .cancellationAction) {
-                        Button("Cancel") {
-                            dismiss()
+//                    ToolbarItem(placement: .cancellationAction) {
+//                        Button("Cancel") {
+//                            dismiss()
+//                        }
+//                    }
+                   
+                        
+                    ToolbarItemGroup(placement: .bottomBar) {
+                        Spacer()
+                        
+                        Button {
+                            showPlaceLookupSheet.toggle()
+                        } label: {
+                            Image(systemName: "magnifyingglass")
+                            Text("Lookup Place")
                         }
                     }
+                    
                     ToolbarItem(placement: .navigationBarTrailing) {
                         Button("Save") {
-                            //TODO: Add Save code her
-                            dismiss()
+                            Task {
+                                let success = await reviewVM.saveReview(bathroom: bathroom, review: review)
+                                if success {
+                                    dismiss()
+                                    
+                                } else {
+                                    print("saving review is not working in ReviewView")
+                                }
+                            }
                         }
                     }
                 })
+                .sheet(isPresented: $showPlaceLookupSheet) {
+                    PlaceLookupView(bathroom: $bathroom)
+                }
             }
             
             

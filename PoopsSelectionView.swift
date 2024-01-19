@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct PoopsSelectionView: View {
-    @State var rating: Int // change this to @biding after layout is tested
+    @Binding var rating: Int // change this to @biding after layout is tested
     let highestRating = 5
     let unselected = Image("blankPoopEmoji")
     let selected = Image("poopEmoji")
@@ -25,17 +25,17 @@ struct PoopsSelectionView: View {
                         rating = number
                     }
                     .padding(EdgeInsets(top: 0, leading: -8, bottom: 0, trailing: -8))
-
-
+                
+                
             }
             .font(font)
-//            .resizable()
-//            .aspectRatio(contentMode: .fit)
-//            .frame(width: 30, height: 40, alignment: .topLeading)
+            //            .resizable()
+            //            .aspectRatio(contentMode: .fit)
+            //            .frame(width: 30, height: 40, alignment: .topLeading)
         }
-       
         
-    
+        
+        
     }
     func showPoop( for number: Int) -> Image {
         if number > rating {
@@ -47,6 +47,6 @@ struct PoopsSelectionView: View {
 }
 
 #Preview {
-    PoopsSelectionView(rating:3)
-
+    PoopsSelectionView(rating: .constant(4))
+    
 }

@@ -8,16 +8,16 @@
 import Foundation
 import SwiftUI
 import Firebase
+import FirebaseFirestoreSwift
+
 
 struct HomeView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var messageString = "Bathroom Finder"
     
-    
     var body: some View {
         
         NavigationStack {
-            
             GeometryReader {geometry in
                 ZStack {
                     Rectangle()
@@ -34,10 +34,8 @@ struct HomeView: View {
                             .fontWeight(.black)
                             .minimumScaleFactor(0.5)
                             .padding()
-//                            .italic()
                             .underline()
                             .multilineTextAlignment(.center)
-//                            .background(.green)
                             .cornerRadius(10)
                             .frame(maxWidth: .infinity, alignment: .top)
                             .padding(.bottom, 40)
@@ -55,7 +53,7 @@ struct HomeView: View {
                             
                             VStack {
                                 NavigationLink {
-                                    MapView()
+                                    MapView(bathroom: Bathroom())
                                 } label: {
                                     
                                     Text("Search nearby bathrooms")
@@ -69,37 +67,65 @@ struct HomeView: View {
                                 .opacity(0.7)
                                 .cornerRadius(10)
                                 //can use navigationBarBackButtonHidden to remove back button and use @Environment(.\dismiss) instead
-                                
-                                
                             }
                         }
                         
-
                         VStack {
                             Divider()
                                 .background(.black)
                                 .padding(.top, 50.0)
                                 .frame(width: geometry.size.width, alignment: .bottom)
                             
-//                            NavigationLink {
-//                                ReviewView(bathroom: Bathroom, review: Review)
-//                            } label: {
-//                                Text("Rate a Bathroom")
-//                            }
-//                            .buttonStyle(.borderedProminent)
-//                            .frame(width: 200, height: 50, alignment: .bottom)
-//                            
+                            
+                            NavigationLink {
+                                BathroomDetailView(bathroom: Bathroom())
+                            } label: {
+                                Text("go to bathroomdetialview")
+                            }
+                            
+                            
+                            NavigationLink {
+                                ReviewView(bathroom: Bathroom(), review: Review())
+                            } label: {
+                                Text("Rate a Bathroom")
+                            }
+                            //                            .buttonStyle(.borderedProminent)
+                            //                            .frame(width: 200, height: 50, alignment: .bottom)
+                            //
                             
                         }
                         
-                        
+                    }
+                    .toolbar{
+                        ToolbarItem(placement: .navigationBarLeading) {
+                            Button("Sign out") {
+                                do {
+                                    try Auth.auth().signOut()
+                                    print("logout successful")
+                                    dismiss()
+                                } catch {
+                                    print("error: couldnt sign out")
+                                }
+                            }
+                        }
                     }
                 }
-   
+                
             }
         }
-        
-        
+//        .toolbar{
+//            ToolbarItem(placement: .navigationBarLeading) {
+//                Button("Sign out") {
+//                    do {
+//                        try Auth.auth().signOut()
+//                        print("logout successful")
+//                        dismiss()
+//                    } catch {
+//                        print("error: couldnt sign out")
+//                    }
+//                }
+//            }
+//        }
         
     }
 }

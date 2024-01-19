@@ -12,7 +12,7 @@ struct PlaceLookupView: View {
     @EnvironmentObject var locationManager: LocationManager
     @StateObject var placeVM = PlaceViewModel() //we can init as a @STATEObject here if this is the first or only place well use this view model
     @State private var searchText = " "
-    @Binding var returnedPlace: Place
+    @Binding var bathroom: Bathroom
     @Environment(\.dismiss) private var dismiss
     
     
@@ -27,7 +27,10 @@ struct PlaceLookupView: View {
                             .font(.callout)
                     }
                     .onTapGesture {
-                        returnedPlace = place
+                        bathroom.name = place.name
+                        bathroom.address = place.address
+                        bathroom.latitude = place.latitude
+                        bathroom.longitude = place.longitude
                         dismiss()
                     }
                     
@@ -54,13 +57,13 @@ struct PlaceLookupView: View {
                     }
                 }
             }
-            .padding(.top, geometry.size.height * 1/2)
-        .frame(alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/)
+           // .padding(.top, geometry.size.height * 1/2)
+            .frame(alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/)
         }
     }
 }
 
 #Preview {
-    PlaceLookupView(returnedPlace: .constant(Place(mapItem: MKMapItem())))
+    PlaceLookupView(bathroom: .constant(Bathroom()))
         .environmentObject(LocationManager())
 }
