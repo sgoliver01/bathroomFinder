@@ -98,11 +98,7 @@ struct BathroomDetailView: View {
                         Image(systemName: "magnifyingglass")
                         Text("Lookup Place")
                     }
-
-                    
                 }
-             
-                
             }
         }
         .sheet(isPresented: $showPlaceLookupSheet) {

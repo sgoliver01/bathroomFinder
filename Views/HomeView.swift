@@ -34,10 +34,8 @@ struct HomeView: View {
                             .fontWeight(.black)
                             .minimumScaleFactor(0.5)
                             .padding()
-                        //                            .italic()
                             .underline()
                             .multilineTextAlignment(.center)
-                        //                            .background(.green)
                             .cornerRadius(10)
                             .frame(maxWidth: .infinity, alignment: .top)
                             .padding(.bottom, 40)
@@ -55,7 +53,7 @@ struct HomeView: View {
                             
                             VStack {
                                 NavigationLink {
-                                    MapView()
+                                    MapView(bathroom: Bathroom())
                                 } label: {
                                     
                                     Text("Search nearby bathrooms")
@@ -69,11 +67,8 @@ struct HomeView: View {
                                 .opacity(0.7)
                                 .cornerRadius(10)
                                 //can use navigationBarBackButtonHidden to remove back button and use @Environment(.\dismiss) instead
-                                
-                                
                             }
                         }
-                        
                         
                         VStack {
                             Divider()
@@ -92,25 +87,37 @@ struct HomeView: View {
                             
                         }
                         
-                        
+                    }
+                    .toolbar{
+                        ToolbarItem(placement: .navigationBarLeading) {
+                            Button("Sign out") {
+                                do {
+                                    try Auth.auth().signOut()
+                                    print("logout successful")
+                                    dismiss()
+                                } catch {
+                                    print("error: couldnt sign out")
+                                }
+                            }
+                        }
                     }
                 }
                 
             }
         }
-        .toolbar{
-            ToolbarItem(placement: .navigationBarLeading) {
-                Button("Sign out") {
-                    do {
-                        try Auth.auth().signOut()
-                        print("logout successful")
-                        dismiss()
-                    } catch {
-                        print("error: couldnt sign out")
-                    }
-                }
-            }
-        }
+//        .toolbar{
+//            ToolbarItem(placement: .navigationBarLeading) {
+//                Button("Sign out") {
+//                    do {
+//                        try Auth.auth().signOut()
+//                        print("logout successful")
+//                        dismiss()
+//                    } catch {
+//                        print("error: couldnt sign out")
+//                    }
+//                }
+//            }
+//        }
         
     }
 }

@@ -24,8 +24,6 @@ struct ListView: View {
                         .font(.title2)
                 }
             }
-            
-            
             .listStyle(.plain)
             .navigationTitle("Saved Bathrooms")
             .navigationBarTitleDisplayMode(.inline)

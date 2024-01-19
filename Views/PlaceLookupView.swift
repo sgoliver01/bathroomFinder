@@ -57,7 +57,7 @@ struct PlaceLookupView: View {
                     }
                 }
             }
-            .padding(.top, geometry.size.height * 1/2)
+           // .padding(.top, geometry.size.height * 1/2)
             .frame(alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/)
         }
     }

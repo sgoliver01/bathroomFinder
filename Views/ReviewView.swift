@@ -10,6 +10,7 @@ import SwiftUI
 struct ReviewView: View {
     @State var bathroom: Bathroom
     @State var review: Review
+    @State private var showPlaceLookupSheet = false
     @Environment(\.dismiss) private var dismiss
     
     
@@ -130,11 +131,24 @@ struct ReviewView: View {
                     Spacer()
                 }
                 .toolbar(content: {
-                    ToolbarItem(placement: .cancellationAction) {
-                        Button("Cancel") {
-                            dismiss()
+//                    ToolbarItem(placement: .cancellationAction) {
+//                        Button("Cancel") {
+//                            dismiss()
+//                        }
+//                    }
+                   
+                        
+                    ToolbarItemGroup(placement: .bottomBar) {
+                        Spacer()
+                        
+                        Button {
+                            showPlaceLookupSheet.toggle()
+                        } label: {
+                            Image(systemName: "magnifyingglass")
+                            Text("Lookup Place")
                         }
                     }
+                    
                     ToolbarItem(placement: .navigationBarTrailing) {
                         Button("Save") {
                             //TODO: Add Save code her
@@ -142,6 +156,9 @@ struct ReviewView: View {
                         }
                     }
                 })
+                .sheet(isPresented: $showPlaceLookupSheet) {
+                    PlaceLookupView(bathroom: $bathroom)
+                }
             }
             
             
