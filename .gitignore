@@ -1,0 +1,6 @@
+serviceAccountKey.json
+venv/
+upload_bathrooms.py
+*.pyc
+__pycache__/
+*.dmg
