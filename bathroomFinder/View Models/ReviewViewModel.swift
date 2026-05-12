@@ -2,10 +2,11 @@
 //  ReviewViewModel.swift
 //  bathroomFinder
 //
-//  Created by Ben Oliver on 1/19/24.
+//  Created by Sarah Oliver on 1/19/24.
 //
 
 import Foundation
+import Firebase
 import FirebaseFirestore
 import FirebaseFirestoreSwift
 
@@ -45,12 +46,30 @@ class ReviewViewModel: ObservableObject {
         // Recalculate average rating and update bathroom document
         await updateBathroomRating(bathroomID: bathroomID)
         
+        // Store reference under user's reviews for fast profile lookup
+        await saveUserReviewReference(bathroomID: bathroomID, bathroomName: bathroom.name)
+        
         // Notify MapView to refresh
         DispatchQueue.main.async {
             NotificationCenter.default.post(name: .reviewSaved, object: nil)
         }
         
         return true
+    }
+    
+    private func saveUserReviewReference(bathroomID: String, bathroomName: String) async {
+        guard let userId = Auth.auth().currentUser?.uid else { return }
+        let db = Firestore.firestore()
+        
+        do {
+            try await db.collection("users").document(userId).collection("reviews").document(bathroomID).setData([
+                "bathroomId": bathroomID,
+                "bathroomName": bathroomName,
+                "reviewedAt": Timestamp(date: Date())
+            ])
+        } catch {
+            print("Error saving user review reference: \(error.localizedDescription)")
+        }
     }
     
     private func updateBathroomRating(bathroomID: String) async {

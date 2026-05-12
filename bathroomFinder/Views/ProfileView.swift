@@ -176,41 +176,48 @@ struct ProfileView: View {
     }
     
     func fetchUserReviews() {
-        guard let email = Auth.auth().currentUser?.email else { return }
+        guard let userId = Auth.auth().currentUser?.uid else { return }
         let db = Firestore.firestore()
         
-        db.collection("bathrooms").getDocuments { snapshot, error in
-            guard let documents = snapshot?.documents else {
-                isLoading = false
-                return
-            }
-            
-            var results: [(review: Review, bathroomName: String)] = []
-            let group = DispatchGroup()
-            
-            for doc in documents {
-                let bathroomName = doc.data()["name"] as? String ?? "Unknown"
-                group.enter()
+        // Read from user's review references (fast - only reads user's docs)
+        db.collection("users").document(userId).collection("reviews")
+            .order(by: "reviewedAt", descending: true)
+            .getDocuments { snapshot, error in
+                guard let documents = snapshot?.documents else {
+                    isLoading = false
+                    return
+                }
                 
-                db.collection("bathrooms").document(doc.documentID).collection("reviews")
-                    .whereField("reviewer", isEqualTo: email)
-                    .getDocuments { reviewSnapshot, _ in
-                        if let reviewDocs = reviewSnapshot?.documents {
-                            for reviewDoc in reviewDocs {
-                                if let review = try? reviewDoc.data(as: Review.self) {
-                                    results.append((review: review, bathroomName: bathroomName))
+                var results: [(review: Review, bathroomName: String)] = []
+                let group = DispatchGroup()
+                
+                for doc in documents {
+                    let bathroomId = doc.data()["bathroomId"] as? String ?? ""
+                    let bathroomName = doc.data()["bathroomName"] as? String ?? "Unknown"
+                    
+                    guard !bathroomId.isEmpty else { continue }
+                    group.enter()
+                    
+                    // Fetch the actual review from the bathroom's subcollection
+                    db.collection("bathrooms").document(bathroomId).collection("reviews")
+                        .whereField("reviewer", isEqualTo: Auth.auth().currentUser?.email ?? "")
+                        .getDocuments { reviewSnapshot, _ in
+                            if let reviewDocs = reviewSnapshot?.documents {
+                                for reviewDoc in reviewDocs {
+                                    if let review = try? reviewDoc.data(as: Review.self) {
+                                        results.append((review: review, bathroomName: bathroomName))
+                                    }
                                 }
                             }
+                            group.leave()
                         }
-                        group.leave()
-                    }
+                }
+                
+                group.notify(queue: .main) {
+                    userReviews = results.sorted { $0.review.postedOnValue > $1.review.postedOnValue }
+                    isLoading = false
+                }
             }
-            
-            group.notify(queue: .main) {
-                userReviews = results.sorted { $0.review.postedOnValue > $1.review.postedOnValue }
-                isLoading = false
-            }
-        }
     }
     
     func saveEmoji(_ emoji: String) {

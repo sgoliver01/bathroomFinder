@@ -2,7 +2,7 @@
 //  Review.swift
 //  bathroomFinder
 //
-//  Created by Ben Oliver on 1/17/24.
+//  Created by Sarah Oliver on 1/17/24.
 //
 
 import Foundation
@@ -27,7 +27,10 @@ struct Review: Identifiable, Codable {
     var toiletPaperValue: Int { toiletPaper ?? 0 }
     var cleanlinessValue: Int { cleanliness ?? 0 }
     var bodyValue: String { body ?? "" }
-    var reviewerValue: String { reviewer ?? "" }
+    var reviewerValue: String {
+        let email = reviewer ?? ""
+        return email.components(separatedBy: "@").first ?? email
+    }
     var postedOnValue: Date { postedOn ?? Date() }
     
     /// Computed average of all 5 rating fields (1-5 scale)

@@ -2,7 +2,7 @@
 //  PlaceViewModel.swift
 //  bathroomFinder
 //
-//  Created by Ben Oliver on 12/26/23.
+//  Created by Sarah Oliver on 12/26/23.
 //
 
 import Foundation

@@ -3,4 +3,6 @@ venv/
 upload_bathrooms.py
 *.pyc
 __pycache__/
+.DS_Store
+*.dmg
 *.dmg

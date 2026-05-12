@@ -2,7 +2,7 @@
 //  Bathroom.swift
 //  bathroomFinder
 //
-//  Created by Ben Oliver on 1/17/24.
+//  Created by Sarah Oliver on 1/17/24.
 //
 
 import Foundation

@@ -2,7 +2,7 @@
 //  bathroomFinderApp.swift
 //  bathroomFinder
 //
-//  Created by Ben Oliver on 12/22/23.
+//  Created by Sarah Oliver on 12/22/23.
 //
 
 import SwiftUI

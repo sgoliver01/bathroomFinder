@@ -2,7 +2,7 @@
 //  HomeView.swift
 //  bathroomFinder
 //
-//  Created by Ben Oliver on 12/22/23.
+//  Created by Sarah Oliver on 12/22/23.
 //
 
 import SwiftUI
@@ -24,14 +24,13 @@ struct HomeView: View {
                     .ignoresSafeArea()
                 
                 VStack {
-                    Text("🚽 Bathroom Finder")
-                        .font(.system(size: 32, weight: .black, design: .rounded))
-                        .foregroundColor(.white)
-                        .shadow(color: .black.opacity(0.6), radius: 4, x: 0, y: 2)
+                    Text("🚽 Potty Spotter")
+                        .font(.system(size: 28, weight: .black, design: .rounded))
+                        .foregroundColor(.blue.opacity(0.7))
                         .padding(.horizontal, 20)
                         .padding(.vertical, 10)
-                        .background(.ultraThinMaterial)
-                        .cornerRadius(16)
+                        .background(.white.opacity(0.9))
+                        .cornerRadius(12)
                         .padding(.top, 60)
                     
                     Spacer()
@@ -48,7 +47,7 @@ struct HomeView: View {
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .background(.blue.gradient)
+                        .background(Color.blue.opacity(0.7))
                         .cornerRadius(16)
                         .shadow(color: .black.opacity(0.3), radius: 6, x: 0, y: 3)
                     }
@@ -63,10 +62,10 @@ struct HomeView: View {
                         }
                         .font(.subheadline)
                         .fontWeight(.semibold)
-                        .foregroundColor(.white)
+                        .foregroundColor(.blue.opacity(0.7))
                         .padding(.vertical, 10)
                         .padding(.horizontal, 20)
-                        .background(.ultraThinMaterial)
+                        .background(.white.opacity(0.9))
                         .cornerRadius(12)
                     }
                     .padding(.bottom, 60)

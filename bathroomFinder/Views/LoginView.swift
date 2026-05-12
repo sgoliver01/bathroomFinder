@@ -2,7 +2,7 @@
 //  LoginView.swift
 //  bathroomFinder
 //
-//  Created by Ben Oliver on 1/8/24.
+//  Created by Sarah Oliver on 1/8/24.
 //
 
 import SwiftUI
@@ -33,8 +33,9 @@ struct LoginView: View {
                 VStack(spacing: 8) {
                     Text("🚽")
                         .font(.system(size: 60))
-                    Text("Bathroom Finder")
+                    Text("Potty Spotter")
                         .font(.system(size: 28, weight: .black, design: .rounded))
+                        .foregroundColor(.blue.opacity(0.7))
                 }
                 
                 Spacer()

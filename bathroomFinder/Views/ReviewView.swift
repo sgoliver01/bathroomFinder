@@ -2,7 +2,7 @@
 //  RateView.swift
 //  bathroomFinder
 //
-//  Created by Ben Oliver on 12/26/23.
+//  Created by Sarah Oliver on 12/26/23.
 //
 
 import SwiftUI
@@ -54,9 +54,9 @@ struct ReviewView: View {
                 
                 // Rating fields
                 VStack(alignment: .leading, spacing: 16) {
-                    RatingRow(label: "Ease of Use", description: "Was the bathroom ease to find and access?", rating: Binding(get: { review.easeOfUse ?? 0 }, set: { review.easeOfUse = $0 }))
+                    RatingRow(label: "Ease of Use", description: "Was the bathroom easy to find and access?", rating: Binding(get: { review.easeOfUse ?? 0 }, set: { review.easeOfUse = $0 }))
                     RatingRow(label: "Wait Time", description: "How short was the wait for the bathroom?", rating: Binding(get: { review.waitTime ?? 0 }, set: { review.waitTime = $0 }))
-                    RatingRow(label: "Toilet Paper", description: "Was it stocked and quality?", rating: Binding(get: { review.toiletPaper ?? 0 }, set: { review.toiletPaper = $0 }))
+                    RatingRow(label: "Toilet Paper", description: "Was it stocked and good quality?", rating: Binding(get: { review.toiletPaper ?? 0 }, set: { review.toiletPaper = $0 }))
                     RatingRow(label: "Cleanliness", description: "How clean was the bathroom?", rating: Binding(get: { review.cleanliness ?? 0 }, set: { review.cleanliness = $0 }))
                 }
                 .padding(.horizontal)

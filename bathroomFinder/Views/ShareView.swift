@@ -10,7 +10,7 @@ struct ShareView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var friendName = ""
     @State private var phoneNumber = ""
-    @State private var message = "Hey! Check out Bathroom Finder 🚽💩 — it helps you find and rate bathrooms nearby. Download it here: [App Store Link]"
+    @State private var message = "Hey! Check out Potty Spotter 🚽💩 — it helps you find and rate bathrooms nearby. Download it here: [App Store Link]"
     @State private var showMessageComposer = false
     @State private var showAlert = false
     @State private var alertMessage = ""

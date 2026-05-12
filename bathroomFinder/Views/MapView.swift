@@ -2,7 +2,7 @@
 //  MapView.swift
 //  bathroomFinder
 //
-//  Created by Ben Oliver on 12/26/23.
+//  Created by Sarah Oliver on 12/26/23.
 //
 
 import SwiftUI
@@ -13,8 +13,7 @@ import Firebase
 struct MapView: View {
     // MARK: - Properties
     @EnvironmentObject var locationManager: LocationManager
-    @State private var bathrooms: [Bathroom] = []
-    @State private var cachedBathroomIds: Set<String> = []  // track what we've already fetched
+    @EnvironmentObject var cache: BathroomCache
     @State var bathroom: Bathroom
     
     // Map state
@@ -28,7 +27,6 @@ struct MapView: View {
     
     // UI state
     @State private var radiusMiles: Double = 1.0
-    @State private var sliderValue: Double = 0.0
     @State private var selectedPlace: MKMapItem?
     @State private var navigateToRate = false
     @State private var bathroomToRate = Bathroom()
@@ -36,13 +34,17 @@ struct MapView: View {
     @State private var showFilterSheet = false
     @State private var showSearchBar = false
     @State private var fetchTimer: Timer?
-    @State private var lastFetchedRegion: MKCoordinateRegion?
     
-    let maxResults = 2000
+    // Limit map panning to ~10 miles from user location
+    var mapBounds: MapCameraBounds? {
+        guard let location = locationManager.location?.coordinate else { return nil }
+        let region = MKCoordinateRegion(center: location, latitudinalMeters: 32000, longitudinalMeters: 32000)
+        return MapCameraBounds(centerCoordinateBounds: region)
+    }
     
     // MARK: - Computed Properties
     var filteredBathrooms: [Bathroom] {
-        var results = bathrooms
+        var results = cache.bathrooms
         
         // Only show bathrooms visible on the map
         if let region = visibleRegion {
@@ -69,7 +71,7 @@ struct MapView: View {
         NavigationStack {
             VStack(spacing: 0) {
                 // --- MAP ---
-                Map(position: $mapPosition) {
+                Map(position: $mapPosition, bounds: mapBounds) {
                     UserAnnotation()
                     
                     // Toilet icons for rated bathrooms
@@ -89,10 +91,21 @@ struct MapView: View {
                         }
                     }
                     
-                    // Search result pins
+                    // Search result pins (tappable)
                     ForEach(searchResults, id: \.self) { item in
-                        Marker(item.name ?? "Place", coordinate: item.placemark.coordinate)
-                            .tint(.orange)
+                        Annotation(item.name ?? "Place", coordinate: item.placemark.coordinate) {
+                            Button {
+                                selectedPlace = item
+                            } label: {
+                                Image(systemName: "mappin.and.ellipse")
+                                    .font(.caption)
+                                    .foregroundColor(.white)
+                                    .padding(6)
+                                    .background(.blue)
+                                    .clipShape(Circle())
+                                    .shadow(radius: 2)
+                            }
+                        }
                     }
                 }
                 .mapControls {
@@ -141,6 +154,11 @@ struct MapView: View {
                         Section(header: Text("Potential Bathrooms")) {
                             ForEach(searchResults, id: \.self) { item in
                                 Button {
+                                    mapPosition = .region(MKCoordinateRegion(
+                                        center: item.placemark.coordinate,
+                                        latitudinalMeters: 500,
+                                        longitudinalMeters: 500
+                                    ))
                                     selectedPlace = item
                                 } label: {
                                     VStack(alignment: .leading) {
@@ -185,7 +203,7 @@ struct MapView: View {
                                         }
                                         Spacer()
                                         if bathroom.reviewCountValue > 0 {
-                                            VStack(spacing: 2) {
+                                            HStack(spacing: 2) {
                                                 Text(String(format: "%.1f", bathroom.averageRatingValue))
                                                     .font(.headline)
                                                     .bold()
@@ -243,28 +261,43 @@ struct MapView: View {
                             .font(.subheadline)
                     }
                     
-                    Button {
-                        var bathroom = Bathroom()
-                        bathroom.name = place.name ?? ""
-                        bathroom.address = place.placemark.formattedAddress
-                        bathroom.latitude = place.placemark.coordinate.latitude
-                        bathroom.longitude = place.placemark.coordinate.longitude
-                        bathroomToRate = bathroom
-                        selectedPlace = nil
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
-                            navigateToRate = true
+                    HStack(spacing: 12) {
+                        Button {
+                            var bathroom = Bathroom()
+                            bathroom.name = place.name ?? ""
+                            bathroom.address = place.placemark.formattedAddress
+                            bathroom.latitude = place.placemark.coordinate.latitude
+                            bathroom.longitude = place.placemark.coordinate.longitude
+                            bathroomToRate = bathroom
+                            selectedPlace = nil
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                                navigateToRate = true
+                            }
+                        } label: {
+                            Label("Add Rating", systemImage: "pencil")
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(.blue)
+                                .foregroundColor(.white)
+                                .cornerRadius(10)
                         }
-                    } label: {
-                        Label("Add Rating", systemImage: "pencil")
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(.blue)
-                            .foregroundColor(.white)
-                            .cornerRadius(10)
+                        
+                        Button {
+                            let mapItem = MKMapItem(placemark: MKPlacemark(coordinate: place.placemark.coordinate))
+                            mapItem.name = place.name
+                            mapItem.openInMaps(launchOptions: [MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeDefault])
+                        } label: {
+                            Label("Directions", systemImage: "arrow.triangle.turn.up.right.circle.fill")
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(.blue)
+                                .foregroundColor(.white)
+                                .cornerRadius(10)
+                        }
                     }
                 }
                 .padding()
-                .presentationDetents([.height(220)])
+                .presentationDetents([.medium])
             }
             // --- RATED BATHROOM SELECTED (toilet icon tapped) ---
             .sheet(item: $selectedBathroom) { bathroom in
@@ -286,20 +319,6 @@ struct MapView: View {
                     Text("Filter Bathrooms")
                         .font(.headline)
                     
-                    // Radius
-                    VStack(spacing: 4) {
-                        Text("Radius: \(Int(radiusMiles)) miles")
-                            .font(.subheadline)
-                            .bold()
-                        Slider(value: $sliderValue, in: 0...1)
-                            .onChange(of: sliderValue) { _, val in
-                                // Exponential: 1 mile at 0, 10 miles at 1
-                                radiusMiles = 1 + 9 * pow(val, 2)
-                            }
-                    }
-                    
-                    Divider()
-                    
                     // Minimum rating
                     VStack(spacing: 4) {
                         Text("Minimum Rating")
@@ -314,10 +333,8 @@ struct MapView: View {
                     }
                     
                     HStack(spacing: 16) {
-                        Button("Clear All") {
+                        Button("Clear") {
                             minimumRating = 0
-                            sliderValue = 0
-                            radiusMiles = 1
                         }
                         .foregroundColor(.red)
                         
@@ -328,17 +345,7 @@ struct MapView: View {
                     }
                 }
                 .padding(24)
-                .presentationDetents([.height(350)])
-                .onChange(of: radiusMiles) { _, _ in
-                    if let location = locationManager.location?.coordinate {
-                        let meters = radiusMiles * 1609.34 * 2
-                        mapPosition = .region(MKCoordinateRegion(
-                            center: location,
-                            latitudinalMeters: meters,
-                            longitudinalMeters: meters
-                        ))
-                    }
-                }
+                .presentationDetents([.height(250)])
             }
             .onAppear {
                 if let location = locationManager.location?.coordinate {
@@ -348,8 +355,25 @@ struct MapView: View {
             }
             .onReceive(NotificationCenter.default.publisher(for: .reviewSaved)) { _ in
                 if let region = visibleRegion {
-                    lastFetchedRegion = nil  // force re-fetch
-                    fetchBathroomsInRegion(region)
+                    // Force re-fetch to get updated ratings (bypass read limit for this one)
+                    cache.lastFetchedRegion = nil
+                    let db = Firestore.firestore()
+                    let minLat = region.center.latitude - region.span.latitudeDelta / 2
+                    let maxLat = region.center.latitude + region.span.latitudeDelta / 2
+                    let minLon = region.center.longitude - region.span.longitudeDelta / 2
+                    let maxLon = region.center.longitude + region.span.longitudeDelta / 2
+                    
+                    db.collection("bathrooms")
+                        .whereField("latitude", isGreaterThanOrEqualTo: minLat)
+                        .whereField("latitude", isLessThanOrEqualTo: maxLat)
+                        .getDocuments { snapshot, _ in
+                            guard let documents = snapshot?.documents else { return }
+                            let results = documents.compactMap { try? $0.data(as: Bathroom.self) }
+                                .filter { $0.longitude >= minLon && $0.longitude <= maxLon }
+                            DispatchQueue.main.async {
+                                cache.refreshAll(with: results)
+                            }
+                        }
                 }
             }
         }
@@ -379,34 +403,32 @@ struct MapView: View {
     
     // MARK: - Debounced Fetch
     func debouncedFetch(_ region: MKCoordinateRegion) {
-        // Cancel any pending fetch
         fetchTimer?.invalidate()
         
-        // Check if region changed significantly (cache hit = skip)
-        if let last = lastFetchedRegion {
+        if let last = cache.lastFetchedRegion {
             let latDiff = abs(region.center.latitude - last.center.latitude)
             let lonDiff = abs(region.center.longitude - last.center.longitude)
             let spanDiff = abs(region.span.latitudeDelta - last.span.latitudeDelta)
             
-            // Skip if moved less than ~10% of the visible area
-            if latDiff < last.span.latitudeDelta * 0.1 &&
-               lonDiff < last.span.longitudeDelta * 0.1 &&
-               spanDiff < last.span.latitudeDelta * 0.2 {
+            if latDiff < last.span.latitudeDelta * 0.3 &&
+               lonDiff < last.span.longitudeDelta * 0.3 &&
+               spanDiff < last.span.latitudeDelta * 0.3 {
                 return
             }
         }
         
-        // Debounce: wait 0.8s before fetching
         fetchTimer = Timer.scheduledTimer(withTimeInterval: 0.8, repeats: false) { _ in
             DispatchQueue.main.async {
                 fetchBathroomsInRegion(region)
-                lastFetchedRegion = region
+                cache.lastFetchedRegion = region
             }
         }
     }
     
     // MARK: - Fetch Bathrooms in Visible Region
     func fetchBathroomsInRegion(_ region: MKCoordinateRegion) {
+        guard !cache.isAtReadLimit else { return }
+        
         let db = Firestore.firestore()
         
         let minLat = region.center.latitude - region.span.latitudeDelta / 2
@@ -417,9 +439,11 @@ struct MapView: View {
         db.collection("bathrooms")
             .whereField("latitude", isGreaterThanOrEqualTo: minLat)
             .whereField("latitude", isLessThanOrEqualTo: maxLat)
-            .limit(to: 500)
             .getDocuments { snapshot, error in
                 guard let documents = snapshot?.documents else { return }
+                
+                // Count reads
+                cache.countReads(documents.count)
                 
                 let centerLat = region.center.latitude
                 let centerLon = region.center.longitude
@@ -434,22 +458,7 @@ struct MapView: View {
                     }
                 
                 DispatchQueue.main.async {
-                    // Accumulate — only add bathrooms we haven't seen before
-                    for bathroom in results.prefix(maxResults) {
-                        if let id = bathroom.id, !cachedBathroomIds.contains(id) {
-                            cachedBathroomIds.insert(id)
-                            bathrooms.append(bathroom)
-                        }
-                    }
-                    
-                    // Cap total cache size
-                    if bathrooms.count > maxResults {
-                        // Remove oldest (first added) to stay under cap
-                        let overflow = bathrooms.count - maxResults
-                        let removed = bathrooms.prefix(overflow)
-                        for b in removed { cachedBathroomIds.remove(b.id ?? "") }
-                        bathrooms.removeFirst(overflow)
-                    }
+                    cache.addBathrooms(results)
                 }
             }
     }

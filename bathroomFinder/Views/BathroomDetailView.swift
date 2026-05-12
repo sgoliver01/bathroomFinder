@@ -2,7 +2,7 @@
 //  BathroomDetailView.swift
 //  bathroomFinder
 //
-//  Created by Ben Oliver on 1/18/24.
+//  Created by Sarah Oliver on 1/18/24.
 //
 
 import SwiftUI

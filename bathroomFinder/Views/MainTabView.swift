@@ -9,6 +9,7 @@ import SwiftUI
 
 struct MainTabView: View {
     @State private var selectedTab = 0
+    @StateObject private var bathroomCache = BathroomCache()
     
     var body: some View {
         
@@ -58,6 +59,7 @@ struct MainTabView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
                 .edgesIgnoringSafeArea(.all)
+                .environmentObject(bathroomCache)
             
     
     }
